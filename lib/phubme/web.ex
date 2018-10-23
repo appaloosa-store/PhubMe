@@ -8,6 +8,10 @@ defmodule PhubMe.Web do
   plug :dispatch
 
   def init(options) do
+    {:ok, pid } = State.start_link()
+    Process.register(pid, :state)
+    State.put(pid, :last_message_date, DateTime.utc_now())
+
     options
   end
 
@@ -17,19 +21,10 @@ defmodule PhubMe.Web do
   end
 
   post "/taiga-to-slack" do
-    #{:ok, queue } = PhubMe.Queue.start_link(:personal_queue)
-    #PhubMe.Queue.put(:personal_queue, "KEY", "check emails")
-
-    #PhubMe.Queue.get(:personal_queue, "VALUE") |> Logger.info
-
-    # Verify HMAC in header : X-TAIGA-WEBHOOK-SIGNATURE
-   
-    # Extract Taiga payload
-
-    # Store data
+    state = Process.whereis(:state)
 
     if valid_taiga_user_story_payload?(conn.body_params) do
-      handle_taiga_user_story_payload(conn.body_params)
+      handle_taiga_user_story_payload(conn.body_params, state)
       conn
       |> put_resp_content_type("application/json")
       |> send_resp(200, "ok")
@@ -57,10 +52,7 @@ defmodule PhubMe.Web do
     "date" => _date,
     "data" => _data}), do: true
 
-  #defp valid_github_payload?(%{"hook" => _hook}, ["ping"]), do: true
-  #defp valid_github_payload?(_body_params, _req_header), do: false
-
-  defp handle_taiga_user_story_payload(body_params) do
+  defp handle_taiga_user_story_payload(body_params, state) do
 
     tp = %TaigaUserStoryPayload{
       action: get_in(body_params, ["action"]),
@@ -73,21 +65,28 @@ defmodule PhubMe.Web do
 
     Logger.info("Processing taiga user story payload : \"#{inspect(tp)}\"")
     
-    #TODO : fetch delta from an Agent
-    delta = []
-    
+    #Fetch delta from the persisted state
+    persisted_events = State.get(state, :events) || []
+    now = DateTime.utc_now()
+    last_message_date = State.get(state, :last_message_date) || DateTime.utc_now()
+
     event_string = tp 
       |> convert_payload_to_event
       |> convert_event_to_string
 
-    slackMessage = delta ++ [event_string]
-      |> convert_delta_to_slack_message
+    events = persisted_events ++ [event_string]
+    
+    Logger.info(DateTime.diff(now, last_message_date))
 
-    PhubMe.Slack.send_private_message(slackMessage)
-
-    #PhubMe.CommentParser.process_comment(body_params)
-    #|> PhubMe.NicknamesMatcher.match_nicknames
-    #|> PhubMe.Slack.send_private_message
+    if DateTime.diff(now, last_message_date) > batch_delay_in_s() do
+      events 
+        |> convert_events_to_slack_message
+        |> PhubMe.Slack.send_private_message
+      State.put(state, :events, [])
+      State.put(state, :last_message_date, now)
+    else
+      State.put(state, :events, events)
+    end
   end
 
   defp convert_payload_to_event(%TaigaUserStoryPayload{}=payload) do
@@ -110,7 +109,7 @@ defmodule PhubMe.Web do
     "[#{event.prefix}] <#{event.url}|##{event.id}: #{event.title}>. #{Enum.join(slack_nicknames, ", ")} mentionned"
   end
 
-  defp convert_delta_to_slack_message(delta) do
+  defp convert_events_to_slack_message(delta) do
     delta |> inspect |> Logger.info
 
     """
@@ -134,6 +133,8 @@ defmodule PhubMe.Web do
     []
   end
 
-
+  defp batch_delay_in_s do
+    Application.fetch_env!(:slack, :batch_delay_in_s)
+  end
 
 end
