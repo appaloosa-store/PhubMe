@@ -5,7 +5,7 @@ defmodule PhubMe.Api do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(PhubMe.Web, [])
+      worker(PhubMe.Web, []),
     ]
 
     opts = [strategy: :one_for_one, name: PhubMe.Supervisor]

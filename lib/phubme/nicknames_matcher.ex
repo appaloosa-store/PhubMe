@@ -7,21 +7,22 @@ defmodule PhubMe.NicknamesMatcher do
   end
 
   def match_nicknames(%IssueComment{nicknames: nicknames}=issue_comment) do
+    
     %{ issue_comment | nicknames: matching_nicknames(nicknames)}
   end
 
-  defp matching_nicknames(list, acc \\ [])
+  def matching_nicknames(list, acc \\ [])
 
-  defp matching_nicknames([nickname | tail], acc) do
+  def matching_nicknames([nickname | tail], acc) do
     next_acc =
       case nickname_from_mix_config(nickname) do
-        nil -> acc
-        matching_nickname -> ["@#{matching_nickname}" | acc]
+        nil -> ["#{nickname}" | acc]
+        matching_nickname -> ["<@#{matching_nickname}>" | acc]
       end
     matching_nicknames(tail, next_acc)
   end
 
-  defp matching_nicknames([], acc) do
+  def matching_nicknames([], acc) do
     Enum.reverse(acc)
   end
 

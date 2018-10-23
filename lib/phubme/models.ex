@@ -1,3 +1,12 @@
+defmodule TaigaUserStoryPayload do
+  @enforce_keys [:action, :type, :by, :date, :data]
+  defstruct [:action, :type, :by, :date, :data, :change]
+end
+
+defmodule TaigaEvent do
+  defstruct [:prefix, :title, :id, :url, :mentionned]
+end
+
 defmodule IssueComment do
   @moduledoc """
   Struct that is used just after comment parsed :
