@@ -12,6 +12,10 @@ defmodule PhubMe.Web do
     Process.register(pid, :state)
     State.put(pid, :last_message_date, DateTime.utc_now())
 
+    Application.get_all_env(:slack) 
+      |> inspect
+      |> Logger.info
+
     options
   end
 
