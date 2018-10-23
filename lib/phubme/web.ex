@@ -80,9 +80,10 @@ defmodule PhubMe.Web do
 
     events = persisted_events ++ [event_string]
     
-    Logger.info(DateTime.diff(now, last_message_date))
+    elapsed_time = DateTime.diff(now, last_message_date)
+    Logger.info("Elapsed time : #{elapsed_time}")
 
-    if DateTime.diff(now, last_message_date) > batch_delay_in_s() do
+    if elapsed_time > batch_delay_in_s() do
       events 
         |> convert_events_to_slack_message
         |> PhubMe.Slack.send_private_message
