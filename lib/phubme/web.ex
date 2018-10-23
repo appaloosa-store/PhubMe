@@ -138,7 +138,14 @@ defmodule PhubMe.Web do
   end
 
   defp batch_delay_in_s do
-    Application.fetch_env!(:slack, :batch_delay_in_s)
+
+    d = Application.fetch_env!(:slack, :batch_delay_in_s)
+  
+    case d do
+      d when not is_integer(d) -> elem(Integer.parse(d), 0)
+      _ -> d
+    end
+      
   end
 
 end
