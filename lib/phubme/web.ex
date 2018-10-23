@@ -76,12 +76,14 @@ defmodule PhubMe.Web do
     #TODO : fetch delta from an Agent
     delta = []
     
-    event_string = tp |> convert_payload_to_event |> convert_event_to_string
+    event_string = tp 
+      |> convert_payload_to_event
+      |> convert_event_to_string
 
     slackMessage = delta ++ [event_string]
       |> convert_delta_to_slack_message
 
-    PhubMe.Slack.send_private_message("@benjamin.orsini616", slackMessage)
+    PhubMe.Slack.send_private_message(slackMessage)
 
     #PhubMe.CommentParser.process_comment(body_params)
     #|> PhubMe.NicknamesMatcher.match_nicknames
@@ -131,5 +133,7 @@ defmodule PhubMe.Web do
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{}) do 
     []
   end
+
+
 
 end

@@ -32,10 +32,13 @@ defmodule PhubMe.Slack do
     send_private_message(%{ issue_comment | nicknames: nick_tail})
   end
 
-  def send_private_message(nickname, message) do
-    case Slack.Web.Chat.post_message(nickname, message, %{token: slack_token()}) do
+
+  def send_private_message(message) do
+    channel = slack_channel()
+    Logger.info("Sending message on #{slack_channel()}")
+    case Slack.Web.Chat.post_message(channel, message, %{token: slack_token()}) do
       %{"error" => "invalid_auth"} -> invalid_slack_auth_message()
-      %{"ok" => false, "error" => "no_channel_found"} -> no_matching_channel_message(nickname)
+      %{"ok" => false, "error" => "no_channel_found"} -> no_matching_channel_message(channel)
       %{"ok" => false, "error" => "account_inactive"} -> account_inactive()
       _ -> matching_channel_message()
     end
@@ -48,6 +51,10 @@ defmodule PhubMe.Slack do
 
   defp slack_token do
     Application.fetch_env!(:slack, :api_token)
+  end
+
+  defp slack_channel do
+    Application.fetch_env!(:slack, :slack_channel)
   end
 
   defp invalid_slack_auth_message do
