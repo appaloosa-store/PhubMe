@@ -96,7 +96,7 @@ defmodule PhubMe.Web do
 
   defp convert_payload_to_event(%TaigaUserStoryPayload{}=payload) do
     mentionned = get_taiga_interesting_fields(payload)
-      |> Enum.reduce([], fn(str, acc) -> String.split(str, " ") ++ acc end)
+      |> Enum.reduce([], fn(str, acc) -> String.split(str, " ", trim: true) ++ acc end)
       |> Enum.filter(fn(str) -> String.starts_with?(str, "@") end)
     
     %TaigaEvent {
@@ -111,7 +111,15 @@ defmodule PhubMe.Web do
   defp convert_event_to_string(%TaigaEvent{}=event) do 
     event |> inspect |> Logger.info
     slack_nicknames = PhubMe.NicknamesMatcher.matching_nicknames(event.mentionned)
-    "[#{event.prefix}] <#{event.url}|##{event.id}: #{event.title}>. #{Enum.join(slack_nicknames, ", ")} mentionned"
+
+Logger.info(slack_nicknames)
+    mentions = 
+    case slack_nicknames do
+      [] -> nil
+      _ -> Enum.join(slack_nicknames, ", ") <> " were mentionned."
+    end
+
+    "[#{event.prefix}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
   end
 
   defp convert_events_to_slack_message(delta) do
