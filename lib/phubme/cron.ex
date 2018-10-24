@@ -36,12 +36,7 @@ defmodule Cron do
     end
   
     defp convert_events_to_slack_message(delta) do
-    delta |> inspect |> Logger.info
-
-    """
-    Last updates from Taiga :
-    \n
-    #{Enum.join(delta, "\n")}
-    """
-  end
+        delta |> inspect |> Logger.info
+        Enum.join(delta, "\n")
+    end
 end
