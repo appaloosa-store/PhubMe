@@ -18,6 +18,7 @@ defmodule Cron do
             _ -> 
               Logger.info("Send #{length(persisted_events)} taiga events to slack")
               persisted_events 
+              |> group_events_by_story
               |> convert_events_to_slack_message
               |> PhubMe.Slack.send_private_message
               State.put(state_pid, :events, [])
@@ -35,11 +36,33 @@ defmodule Cron do
         end
     end
 
-    defp convert_events_to_slack_message(events) do
-        events |> Enum.map(fn(e) -> convert_event_to_string(e) end) |> Enum.join("\n")
+    defp convert_events_to_slack_message(events_map) do
+
+        Logger.info("Map" <> inspect(events_map))
+        events_map
+            |> Map.keys
+            |> Enum.map(
+                fn(story_id) -> 
+                    #Get the story title
+                    title = get_story_title(story_id, events_map)
+
+                    #Get the events summary
+                    story_events = events_map[story_id]
+                    summary = Enum.map(story_events, fn(e) -> convert_event_to_string(e) end)                    |> Enum.join("\n")
+                    
+                    "#{title}\n#{summary}"
+                end
+                )
+            |> Enum.join("\n\n")
     end
 
-    defp convert_event_to_string(%TaigaEvent{}=event) do 
+    defp get_story_title(story_id, events_map) do
+        Logger.info(inspect(events_map[story_id]))
+        last_event = Enum.fetch!(events_map[story_id],-1)
+        "Story <#{last_event.url}|##{last_event.id}: #{last_event.title}>"
+    end
+
+    defp convert_event_to_string(event) do 
         event |> inspect |> Logger.info
         slack_nicknames = PhubMe.NicknamesMatcher.matching_nicknames(event.mentionned)
 
@@ -50,6 +73,13 @@ defmodule Cron do
         _ -> Enum.join(slack_nicknames, ", ") <> " were mentionned."
         end
 
-        "[#{event.type}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
+        "[#{event.type}] #{mentions}"
     end
+
+    defp group_events_by_story(events) do
+        events
+        |> Enum.reduce(%{}, fn(e, map) -> Map.merge(map, %{e.id => [e]}, fn _k, v1, v2 ->
+  v1 ++ v2 end) end)
+    end
+
 end
