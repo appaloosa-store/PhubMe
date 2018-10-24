@@ -112,7 +112,7 @@ defmodule PhubMe.Web do
         "created"
       action == "delete" ->
         "deleted"
-      action == "" && edit_status != nil ->
+      action == "change" && edit_status != nil ->
         "status changed"
       action == "change" && delete_comment_date == nil and comment != nil and comment != "" ->
         "commented"
