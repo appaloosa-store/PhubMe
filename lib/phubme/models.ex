@@ -3,9 +3,30 @@ defmodule TaigaUserStoryPayload do
   defstruct [:action, :type, :by, :date, :data, :change]
 end
 
+
+
 defmodule TaigaEvent do
-  defstruct [:prefix, :title, :id, :url, :mentionned]
+  @type eventType :: 
+  :story_created | 
+  :story_modified_generic | 
+  :story_modified_comment |
+  :story_modified_status |
+  :story_deleted
+
+  @enforce_keys [:type, :title, :id, :url, :mentionned]
+
+  defstruct [:type, :title, :id, :url, :mentionned]
+
+  @type t() :: %__MODULE__{
+          type: eventType,
+          title: String.t(),
+          id: String.t(),
+          url: String.t(),
+          mentionned: [String]
+        }
+
 end
+
 
 defmodule IssueComment do
   @moduledoc """

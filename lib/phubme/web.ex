@@ -90,12 +90,30 @@ defmodule PhubMe.Web do
       |> Enum.filter(fn(str) -> String.starts_with?(str, "@") end)
     
     %TaigaEvent {
+      type: get_event_type(payload),
       title: get_in(payload.data, ["subject"]),
       id: get_in(payload.data, ["ref"]),
       url: "#{get_in(payload.data, ["project", "permalink"])}/us/#{get_in(payload.data, ["ref"])}",
       mentionned: mentionned,
-      prefix: payload.action
     }
+  end
+
+  defp get_event_type(%TaigaUserStoryPayload{ action: "create"}=payload) do 
+    :story_created
+  end
+
+  defp get_event_type(%TaigaUserStoryPayload{ action: "change"}=payload) do 
+    #Check modified comment
+
+    #Check modified status
+
+
+    #Generic modification
+    :story_modified_generic
+  end
+
+  defp get_event_type(%TaigaUserStoryPayload{ action: "delete"}=payload) do 
+    :story_deleted
   end
 
   defp convert_event_to_string(%TaigaEvent{}=event) do 
@@ -109,7 +127,7 @@ Logger.info(slack_nicknames)
       _ -> Enum.join(slack_nicknames, ", ") <> " were mentionned."
     end
 
-    "[#{event.prefix}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
+    "[#{event.type}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
   end
 
 
