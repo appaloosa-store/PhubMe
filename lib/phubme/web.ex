@@ -68,12 +68,10 @@ defmodule PhubMe.Web do
 
     Logger.info("Processing taiga user story payload : \"#{inspect(tp)}\"")
     
-    event_string = tp 
-      |> convert_payload_to_event
-      |> convert_event_to_string
+    event = tp |> convert_payload_to_event
 
     persisted_events = State.get(state_pid, :events) || []
-    events = persisted_events ++ [event_string]
+    events = persisted_events ++ [event]
     State.put(state_pid, :events, events)
   end
 
@@ -115,22 +113,6 @@ defmodule PhubMe.Web do
   defp get_event_type(%TaigaUserStoryPayload{ action: "delete"}=payload) do 
     :story_deleted
   end
-
-  defp convert_event_to_string(%TaigaEvent{}=event) do 
-    event |> inspect |> Logger.info
-    slack_nicknames = PhubMe.NicknamesMatcher.matching_nicknames(event.mentionned)
-
-Logger.info(slack_nicknames)
-    mentions = 
-    case slack_nicknames do
-      [] -> nil
-      _ -> Enum.join(slack_nicknames, ", ") <> " were mentionned."
-    end
-
-    "[#{event.type}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
-  end
-
-
 
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{ action: "create"}=payload) do 
     [get_in(payload.data, ["description"])] 

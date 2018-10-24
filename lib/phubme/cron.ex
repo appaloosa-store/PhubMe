@@ -18,6 +18,7 @@ defmodule Cron do
             _ -> 
               Logger.info("Send #{length(persisted_events)} taiga events to slack")
               persisted_events 
+              |> Enum.map(fn(e) -> convert_event_to_string(e) end)
               |> convert_events_to_slack_message
               |> PhubMe.Slack.send_private_message
               State.put(state_pid, :events, [])
@@ -35,6 +36,20 @@ defmodule Cron do
         end
     end
   
+    defp convert_event_to_string(%TaigaEvent{}=event) do 
+        event |> inspect |> Logger.info
+        slack_nicknames = PhubMe.NicknamesMatcher.matching_nicknames(event.mentionned)
+
+        Logger.info(slack_nicknames)
+        mentions = 
+        case slack_nicknames do
+        [] -> nil
+        _ -> Enum.join(slack_nicknames, ", ") <> " were mentionned."
+        end
+
+        "[#{event.type}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
+    end
+
     defp convert_events_to_slack_message(delta) do
         delta |> inspect |> Logger.info
         Enum.join(delta, "\n")
