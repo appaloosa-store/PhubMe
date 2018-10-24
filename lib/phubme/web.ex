@@ -96,22 +96,29 @@ defmodule PhubMe.Web do
     }
   end
 
-  defp get_event_type(%TaigaUserStoryPayload{ action: "create"}=payload) do 
-    :story_created
-  end
+  defp get_event_type(%TaigaUserStoryPayload{}=payload) do 
+    action = payload.action
 
-  defp get_event_type(%TaigaUserStoryPayload{ action: "change"}=payload) do 
     #Check modified comment
-
+    delete_comment_date = get_in(payload.change, ["delete_comment_date"])
+    comment = get_in(payload.change, ["comment"])
+    
     #Check modified status
-
-
-    #Generic modification
-    :story_modified_generic
-  end
-
-  defp get_event_type(%TaigaUserStoryPayload{ action: "delete"}=payload) do 
-    :story_deleted
+    edit_status = get_in(payload.change, ["diff", "status"])
+    
+    Logger.info("ACTION " <> action)
+    cond do
+      action == "create" ->
+        :story_created
+      action == "delete" ->
+        :story_deleted
+      action == "change" && edit_status != nil ->
+        :story_modified_status
+      action == "change" && delete_comment_date == nil and comment != nil ->
+        :story_modified_comment
+      true ->
+        :story_modified_generic
+    end
   end
 
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{ action: "create"}=payload) do 
