@@ -96,7 +96,14 @@ defmodule PhubMe.Web do
 
   defp convert_payload_to_event(%TaigaUserStoryPayload{}=payload) do
     mentionned = get_taiga_interesting_fields(payload)
-      |> Enum.reduce([], fn(str, acc) -> String.split(str, " ", trim: true) ++ acc end)
+
+      |> Enum.reduce([], fn(str, acc) -> 
+        stringList = String.replace(str, "\n", " ")
+        |> String.replace("\t", " ")
+        |> String.split(" ", trim: true)
+        stringList ++ acc
+        end)
+      |> Enum.map(fn(str) -> String.trim(str) end)
       |> Enum.filter(fn(str) -> String.starts_with?(str, "@") end)
     
     %TaigaEvent {
