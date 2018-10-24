@@ -129,7 +129,11 @@ defmodule PhubMe.Web do
   end
 
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{ action: "change"}=payload) do 
-    [get_in(payload.change, ["comment"])]
+    delete_comment_date = get_in(payload.change, ["delete_comment_date"])
+    cond do
+      delete_comment_date == nil -> [get_in(payload.change, ["comment"])]
+      true -> []
+    end
   end
   
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{}) do 
