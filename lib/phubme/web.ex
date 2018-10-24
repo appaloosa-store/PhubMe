@@ -109,15 +109,15 @@ defmodule PhubMe.Web do
     Logger.info("ACTION " <> action)
     cond do
       action == "create" ->
-        :story_created
+        "created"
       action == "delete" ->
-        :story_deleted
-      action == "change" && edit_status != nil ->
-        :story_modified_status
+        "deleted"
+      action == "" && edit_status != nil ->
+        "status changed"
       action == "change" && delete_comment_date == nil and comment != nil ->
-        :story_modified_comment
+        "commented"
       true ->
-        :story_modified_generic
+        "modified"
     end
   end
 

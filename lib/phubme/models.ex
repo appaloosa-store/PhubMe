@@ -6,19 +6,12 @@ end
 
 
 defmodule TaigaEvent do
-  @type eventType :: 
-  :story_created | 
-  :story_modified_generic | 
-  :story_modified_comment |
-  :story_modified_status |
-  :story_deleted
-
   @enforce_keys [:type, :title, :id, :url, :mentionned]
 
   defstruct [:type, :title, :id, :url, :mentionned]
 
   @type t() :: %__MODULE__{
-          type: eventType,
+          type: String.t(),
           title: String.t(),
           id: String.t(),
           url: String.t(),
