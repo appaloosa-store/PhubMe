@@ -10,8 +10,7 @@ defmodule PhubMe.Web do
   def init(options) do
     {:ok, pid } = State.start_link()
     Process.register(pid, :state)
-    State.put(pid, :last_message_date, DateTime.utc_now())
-
+    
     Application.get_all_env(:slack) 
       |> inspect
       |> Logger.info
@@ -56,7 +55,7 @@ defmodule PhubMe.Web do
     "date" => _date,
     "data" => _data}), do: true
 
-  defp handle_taiga_user_story_payload(body_params, state) do
+  defp handle_taiga_user_story_payload(body_params, state_pid) do
 
     tp = %TaigaUserStoryPayload{
       action: get_in(body_params, ["action"]),
@@ -69,29 +68,13 @@ defmodule PhubMe.Web do
 
     Logger.info("Processing taiga user story payload : \"#{inspect(tp)}\"")
     
-    #Fetch delta from the persisted state
-    persisted_events = State.get(state, :events) || []
-    now = DateTime.utc_now()
-    last_message_date = State.get(state, :last_message_date) || DateTime.utc_now()
-
     event_string = tp 
       |> convert_payload_to_event
       |> convert_event_to_string
 
+    persisted_events = State.get(state_pid, :events) || []
     events = persisted_events ++ [event_string]
-    
-    elapsed_time = DateTime.diff(now, last_message_date)
-    Logger.info("Elapsed time : #{elapsed_time}")
-
-    if elapsed_time > batch_delay_in_s() do
-      events 
-        |> convert_events_to_slack_message
-        |> PhubMe.Slack.send_private_message
-      State.put(state, :events, [])
-      State.put(state, :last_message_date, now)
-    else
-      State.put(state, :events, events)
-    end
+    State.put(state_pid, :events, events)
   end
 
   defp convert_payload_to_event(%TaigaUserStoryPayload{}=payload) do
@@ -129,15 +112,7 @@ Logger.info(slack_nicknames)
     "[#{event.prefix}] <#{event.url}|##{event.id}: #{event.title}>. #{mentions}"
   end
 
-  defp convert_events_to_slack_message(delta) do
-    delta |> inspect |> Logger.info
 
-    """
-    Last updates from Taiga :
-    \n
-    #{Enum.join(delta, "\n")}
-    """
-  end
 
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{ action: "create"}=payload) do 
     [get_in(payload.data, ["description"])] 
@@ -151,17 +126,6 @@ Logger.info(slack_nicknames)
   
   defp get_taiga_interesting_fields(%TaigaUserStoryPayload{}) do 
     []
-  end
-
-  defp batch_delay_in_s do
-
-    d = Application.fetch_env!(:slack, :batch_delay_in_s)
-  
-    case d do
-      d when not is_integer(d) -> elem(Integer.parse(d), 0)
-      _ -> d
-    end
-      
   end
 
 end

@@ -6,6 +6,7 @@ defmodule PhubMe.Api do
 
     children = [
       worker(PhubMe.Web, []),
+      Cron
     ]
 
     opts = [strategy: :one_for_one, name: PhubMe.Supervisor]
