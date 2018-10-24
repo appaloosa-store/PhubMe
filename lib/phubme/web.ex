@@ -81,7 +81,7 @@ defmodule PhubMe.Web do
       |> Enum.reduce([], fn(str, acc) -> 
         stringList = String.replace(str, "\n", " ")
         |> String.replace("\t", " ")
-        |> String.split(" ", trim: true)
+        |> String.split(~r{ | }, trim: true)
         stringList ++ acc
         end)
       |> Enum.map(fn(str) -> String.trim(str) end)
