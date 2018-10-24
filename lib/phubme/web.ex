@@ -92,6 +92,7 @@ defmodule PhubMe.Web do
       title: get_in(payload.data, ["subject"]),
       id: get_in(payload.data, ["ref"]),
       url: "#{get_in(payload.data, ["project", "permalink"])}/us/#{get_in(payload.data, ["ref"])}",
+      by: get_in(payload.by, ["username"]),
       mentionned: mentionned,
     }
   end

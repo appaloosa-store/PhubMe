@@ -6,15 +6,16 @@ end
 
 
 defmodule TaigaEvent do
-  @enforce_keys [:type, :title, :id, :url, :mentionned]
+  @enforce_keys [:type, :title, :id, :url, :by, :mentionned]
 
-  defstruct [:type, :title, :id, :url, :mentionned]
+  defstruct [:type, :title, :id, :url, :by, :mentionned]
 
   @type t() :: %__MODULE__{
           type: String.t(),
           title: String.t(),
           id: String.t(),
           url: String.t(),
+          by: String.t(),
           mentionned: [String]
         }
 

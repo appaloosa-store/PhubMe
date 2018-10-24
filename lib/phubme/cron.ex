@@ -59,7 +59,7 @@ defmodule Cron do
     defp get_story_title(story_id, events_map) do
         Logger.info(inspect(events_map[story_id]))
         last_event = Enum.fetch!(events_map[story_id],-1)
-        "Story <#{last_event.url}|##{last_event.id}: #{last_event.title}>"
+        "<#{last_event.url}|##{last_event.id}: #{last_event.title}>"
     end
 
     defp convert_event_to_string(event) do 
@@ -70,10 +70,10 @@ defmodule Cron do
         mentions = 
         case slack_nicknames do
         [] -> nil
-        _ -> Enum.join(slack_nicknames, ", ") <> " were mentionned."
+        _ -> "- #{Enum.join(slack_nicknames, ", ")} mentionned."
         end
 
-        "[#{event.type}] #{mentions}"
+        "[#{event.type}] by #{event.by} #{mentions}"
     end
 
     defp group_events_by_story(events) do
