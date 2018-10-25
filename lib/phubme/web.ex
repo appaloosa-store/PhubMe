@@ -15,6 +15,8 @@ defmodule PhubMe.Web do
       |> inspect
       |> Logger.info
 
+    PhubMe.Slack.send_private_message("Taiga-to-Slack bot is up!")
+
     options
   end
 
