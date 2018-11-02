@@ -48,12 +48,21 @@ defmodule Cron do
 
                     #Get the events summary
                     story_events = events_map[story_id]
-                    summary = Enum.map(story_events, fn(e) -> convert_event_to_string(e) end)                    |> Enum.join("\n")
+                    summary = Enum.map(story_events, fn(e) -> convert_event_to_string(e) end)
+                        |> merge_contiguous_duplicates
+                        |> Enum.join("\n")
                     
                     "#{title}\n#{summary}"
                 end
                 )
             |> Enum.join("\n\n")
+    end
+
+    def merge_contiguous_duplicates(story_events) do
+        Enum.reduce(story_events, [], fn(e, array) -> 
+            last_event = List.last(array)
+            if last_event != e do array ++ [e] else array end
+        end)
     end
 
     defp get_story_title(story_id, events_map) do

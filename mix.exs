@@ -3,7 +3,7 @@ defmodule TaigaToSlack.Mixfile do
 
   def project do
     [app: :taigatoslack,
-     version: "0.6.5",
+     version: "1.0.0",
      elixir: "~> 1.6",
      name: "taigatoslack",
      description: "Get notified in Slack when something changes on Taiga",
