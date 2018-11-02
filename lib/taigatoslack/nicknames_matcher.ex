@@ -6,10 +6,12 @@ defmodule TaigaToSlack.NicknamesMatcher do
   def matching_nicknames(list, acc \\ [])
 
   def matching_nicknames([nickname | tail], acc) do
+    matching_nickname = nickname_from_mix_config(nickname) 
     next_acc =
-      case nickname_from_mix_config(nickname) do
-        nil -> ["#{nickname}" | acc]
-        matching_nickname -> ["<@#{matching_nickname}>" | acc]
+      case nickname do
+        _ when matching_nickname != nil -> ["<@#{matching_nickname}>" | acc]
+        "@channel" -> ["<!channel>" | acc]
+        _ -> ["#{nickname}" | acc]
       end
     matching_nicknames(tail, next_acc)
   end
