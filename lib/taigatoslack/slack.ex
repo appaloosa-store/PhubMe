@@ -2,36 +2,11 @@ defmodule TaigaToSlack.Slack do
   require Logger
   @moduledoc """
   Send message to slack.
-  With nicknames, it takes the %IssueComment struct :
-  * It sends a message to each nicknames then log "All procceed"
-
-  Without nicknames :
-  * It log "All procceed"
-
-  When error :
-  * It log the error message
-  All logs have specific level that can be defined in mix config per env.
   """
 
   def send_private_message({:error, error_message}) do
     Logger.error("[TaigaToSlack][Error] " <> error_message)
   end
-
-  def send_private_message(%IssueComment{nicknames: []}) do
-    Logger.info("All procceed")
-  end
-
-  def send_private_message(%IssueComment{nicknames: [nick_head | nick_tail]}=issue_comment) do
-    case Slack.Web.Chat.post_message(nick_head, formated_message(issue_comment), %{token: slack_token()}) do
-      %{"error" => "invalid_auth"} -> invalid_slack_auth_message()
-      %{"ok" => false, "error" => "no_channel_found"} -> no_matching_channel_message(nick_head)
-      %{"ok" => false, "error" => "account_inactive"} -> account_inactive()
-      _ -> matching_channel_message()
-    end
-
-    send_private_message(%{ issue_comment | nicknames: nick_tail})
-  end
-
 
   def send_private_message(message) do
     channel = slack_channel()
@@ -42,11 +17,6 @@ defmodule TaigaToSlack.Slack do
       %{"ok" => false, "error" => "account_inactive"} -> account_inactive()
       _ -> matching_channel_message()
     end
-  end
-
-  defp formated_message(%IssueComment{comment: comment, sender: sender, source: source}) do
-    "You've been mentionned on " <> source <> " from " <> sender <>
-    ". Comment is : " <> comment
   end
 
   defp slack_token do
