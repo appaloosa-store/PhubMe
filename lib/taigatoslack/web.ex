@@ -1,4 +1,4 @@
-defmodule PhubMe.Web do
+defmodule TaigaToSlack.Web do
   use Plug.Router
   require Logger
 
@@ -15,14 +15,14 @@ defmodule PhubMe.Web do
       |> inspect
       |> Logger.info
 
-    PhubMe.Slack.send_private_message("Taiga-to-Slack bot is up!")
+    TaigaToSlack.Slack.send_private_message("Taiga-to-Slack bot is up!")
 
     options
   end
 
   def start_link do
     port = String.to_integer(System.get_env("PORT") || "8080")
-    {:ok, _ } = Plug.Adapters.Cowboy.http(PhubMe.Web, [], port: port)
+    {:ok, _ } = Plug.Adapters.Cowboy.http(TaigaToSlack.Web, [], port: port)
   end
 
   post "/taiga-to-slack" do

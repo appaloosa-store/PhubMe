@@ -1,10 +1,10 @@
 {
-  "name": "PhubMe",
-  "description": "Notify a slack user when the user is mentionned in a github comment.",
-  "repository": "https://github.com/benoittgt/PhubMe",
-  "keywords": ["elixir", "slack", "github", "notification"],
+  "name": "TaigaToSlack",
+  "description": "Get notified in Slack when something changes on Taiga",
+  "repository": "https://github.com/appaloosa-store/taiga-to-slack",
+  "keywords": ["elixir", "slack", "taiga", "notification"],
   "env": {
-    "PHUBME_SLACK_TOKEN": {
+    "SLACK_API_TOKEN": {
       "description": "The slack token to make call",
       "value": "x-xxxxx"
     }

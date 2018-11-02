@@ -1,4 +1,4 @@
-defmodule PhubMe.Slack do
+defmodule TaigaToSlack.Slack do
   require Logger
   @moduledoc """
   Send message to slack.
@@ -14,7 +14,7 @@ defmodule PhubMe.Slack do
   """
 
   def send_private_message({:error, error_message}) do
-    Logger.error("[PhubMe][Error] " <> error_message)
+    Logger.error("[TaigaToSlack][Error] " <> error_message)
   end
 
   def send_private_message(%IssueComment{nicknames: []}) do
@@ -58,7 +58,7 @@ defmodule PhubMe.Slack do
   end
 
   defp invalid_slack_auth_message do
-    raise "Failed to connect. Are you sure you add correct PHUB_ME_SLACK_API_TOKEN?"
+    raise "Failed to connect. Are you sure you add correct SLACK_API_TOKEN?"
   end
 
   defp no_matching_channel_message(nick) do

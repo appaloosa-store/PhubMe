@@ -1,4 +1,4 @@
-defmodule PhubMe.NicknamesMatcher do
+defmodule TaigaToSlack.NicknamesMatcher do
   @moduledoc """
   Replace nicknames found in the comment with nicknames that match ENV defined nicknames.
   """

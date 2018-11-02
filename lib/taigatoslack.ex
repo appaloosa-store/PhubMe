@@ -1,0 +1,2 @@
+defmodule TaigaToSlack do
+end

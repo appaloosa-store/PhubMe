@@ -1,4 +1,4 @@
-defmodule PhubMe.CommentParser do
+defmodule TaigaToSlack.CommentParser do
   require Logger
   @moduledoc """
   Parse comment and detect if they contains nicknames.
@@ -22,7 +22,7 @@ defmodule PhubMe.CommentParser do
   end
 
   defp extract_nicknames(nil) do
-    raise "[PhubMe][Error] Not and issue comment"
+    raise "[TaigaToSlack][Error] Not and issue comment"
   end
 
   defp extract_nicknames(comment) do

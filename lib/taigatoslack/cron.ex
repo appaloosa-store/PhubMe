@@ -20,7 +20,7 @@ defmodule Cron do
               persisted_events 
               |> group_events_by_story
               |> convert_events_to_slack_message
-              |> PhubMe.Slack.send_private_message
+              |> TaigaToSlack.Slack.send_private_message
               State.put(state_pid, :events, [])
           end
 
@@ -64,7 +64,7 @@ defmodule Cron do
 
     defp convert_event_to_string(event) do 
         event |> inspect |> Logger.info
-        slack_nicknames = PhubMe.NicknamesMatcher.matching_nicknames(event.mentionned)
+        slack_nicknames = TaigaToSlack.NicknamesMatcher.matching_nicknames(event.mentionned)
 
         Logger.info(slack_nicknames)
         mentions = 

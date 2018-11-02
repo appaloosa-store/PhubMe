@@ -1,14 +1,14 @@
-defmodule PhubMe.Mixfile do
+defmodule TaigaToSlack.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :phubme,
+    [app: :taigatoslack,
      version: "0.6.5",
      elixir: "~> 1.6",
-     name: "phubme",
-     description: "Notify mentionned github user in slack",
+     name: "taigatoslack",
+     description: "Get notified in Slack when something changes on Taiga",
      licences: "MIT",
-     maintainers: "Benoit Tigeot",
+     maintainers: "Appaloosa",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
@@ -21,7 +21,7 @@ defmodule PhubMe.Mixfile do
 
   def application do
     [applications: [:logger, :cowboy, :plug, :poison, :slack],
-     mod: {PhubMe.Api, []}]
+     mod: {TaigaToSlack.Api, []}]
   end
 
   defp deps do
@@ -41,10 +41,10 @@ defmodule PhubMe.Mixfile do
 
   defp package do
     [# These are the default files included in the package
-     name: :phubme,
+     name: :taigatoslack,
      files: ["lib", "mix.exs", "README*", "CHANGELOG*"],
-     maintainers: ["Benoit Tigeot"],
+     maintainers: ["Appaloosa"],
      licenses: ["MIT"],
-     links: %{"GitHub" => "https://github.com/benoittgt/PhubMe"}]
+     links: %{"GitHub" => "https://github.com/appaloosa-store/taiga-to-slack"}]
   end
 end
